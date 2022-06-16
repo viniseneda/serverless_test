@@ -1,0 +1,47 @@
+service: dynamo-studies
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+  # httpApi:
+  #   cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: '*'
+
+functions:
+  hello:
+    handler: handler.hello
+  getAll:
+    handler: getAll.handler
+    events:
+      - http:
+          path: /user
+          method: GET
+  addUser:
+    handler: addUser.handler
+    events:
+      - http:
+          path: /user
+          method: POST
+
+resources:
+  Resources:
+    MyDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: NAME
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: NAME
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
